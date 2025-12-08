@@ -220,7 +220,7 @@ variable "install_argocd" {
 
 variable "argocd_release" {
   type    = string
-  default = "v2.14.9"
+  default = "v3.2.1"
 }
 
 variable "install_argocd_image_updater" {
@@ -230,7 +230,7 @@ variable "install_argocd_image_updater" {
 
 variable "argocd_image_updater_release" {
   type    = string
-  default = "v0.16.0"
+  default = "v1.0.1"
 }
 
 variable "expose_kubeapi" {

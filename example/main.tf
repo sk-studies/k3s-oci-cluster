@@ -18,6 +18,9 @@ variable "k3s_worker_pool_size" {
 variable "k3s_extra_worker_node" {
   default = true
 }
+variable "install_argocd_image_updater" {
+  default = false
+}
 variable "expose_kubeapi" {
   default = false
 }
