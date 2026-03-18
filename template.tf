@@ -10,6 +10,10 @@ resource "oci_core_instance_configuration" "k3s_server_template" {
     "k3s-template-type"     = "k3s-server"
   }
 
+  lifecycle {
+    ignore_changes        = [instance_details[0].launch_details[0].metadata["user_data"]]
+  }
+
   instance_details {
     instance_type = "compute"
 
