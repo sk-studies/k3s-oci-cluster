@@ -245,3 +245,7 @@ variable "adguard_tcp_nodeport" {
 variable "adguard_udp_nodeport" {
   default = 30055
 }
+
+variable "adguard_dot_nodeport" {
+  default = 30853
+}

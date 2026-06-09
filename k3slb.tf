@@ -209,3 +209,38 @@ resource "oci_network_load_balancer_backend" "adguard_udp_backend" {
   port      = var.adguard_udp_nodeport
   target_id = data.oci_core_instance_pool_instances.k3s_workers_instances.instances[count.index].id
 }
+
+resource "oci_network_load_balancer_listener" "adguard_dot_listener" {
+  default_backend_set_name = oci_network_load_balancer_backend_set.adguard_dot_backend_set.name
+  name                     = "adguard_dot_listener"
+  network_load_balancer_id = oci_network_load_balancer_network_load_balancer.k3s_public_lb.id
+
+  port     = 853
+  protocol = "TCP"
+}
+
+resource "oci_network_load_balancer_backend_set" "adguard_dot_backend_set" {
+  health_checker {
+    protocol = "TCP"
+    port     = var.adguard_dot_nodeport
+  }
+
+  name                     = "adguard_dot_backend"
+  network_load_balancer_id = oci_network_load_balancer_network_load_balancer.k3s_public_lb.id
+  policy                   = "FIVE_TUPLE"
+  is_preserve_source       = true
+}
+
+resource "oci_network_load_balancer_backend" "adguard_dot_backend" {
+  depends_on = [
+    oci_core_instance_pool.k3s_workers,
+  ]
+
+  count                    = var.k3s_worker_pool_size
+  backend_set_name         = oci_network_load_balancer_backend_set.adguard_dot_backend_set.name
+  network_load_balancer_id = oci_network_load_balancer_network_load_balancer.k3s_public_lb.id
+
+  name      = format("%s:%s", data.oci_core_instance_pool_instances.k3s_workers_instances.instances[count.index].id, var.adguard_dot_nodeport)
+  port      = var.adguard_dot_nodeport
+  target_id = data.oci_core_instance_pool_instances.k3s_workers_instances.instances[count.index].id
+}

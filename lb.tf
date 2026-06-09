@@ -52,3 +52,33 @@ resource "oci_load_balancer_backend" "k3s_kube_api_backend" {
   load_balancer_id = oci_load_balancer_load_balancer.k3s_load_balancer.id
   port             = var.kube_api_port
 }
+
+resource "oci_load_balancer_backend_set" "adguard_dot_backend_set" {
+  health_checker {
+    protocol = "TCP"
+    port     = 30853 # your NodePort
+  }
+
+  load_balancer_id = oci_load_balancer_load_balancer.k3s_load_balancer.id
+  name             = "AdGuard_DoT_Backend_Set"
+  policy           = "ROUND_ROBIN"
+}
+
+resource "oci_load_balancer_listener" "adguard_dot_listener" {
+  load_balancer_id         = oci_load_balancer_load_balancer.k3s_load_balancer.id
+  name                     = "AdGuard_DoT_Listener"
+  default_backend_set_name = oci_load_balancer_backend_set.adguard_dot_backend_set.name
+
+  port     = 853
+  protocol = "TCP"
+}
+
+resource "oci_load_balancer_backend" "adguard_dot_backend" {
+  count = var.k3s_worker_pool_size
+
+  backendset_name  = oci_load_balancer_backend_set.adguard_dot_backend_set.name
+  load_balancer_id = oci_load_balancer_load_balancer.k3s_load_balancer.id
+
+  ip_address = data.oci_core_instance.k3s_workers_instances_ips[count.index].private_ip
+  port       = 30853
+}

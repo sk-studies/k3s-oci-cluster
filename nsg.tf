@@ -225,3 +225,38 @@ resource "oci_core_network_security_group_security_rule" "nsg_to_instances_adgua
     }
   }
 }
+
+resource "oci_core_network_security_group_security_rule" "public_lb_dot" {
+  network_security_group_id = oci_core_network_security_group.public_lb_nsg.id
+
+  direction = "INGRESS"
+  protocol  = "6" # TCP
+
+  source      = "0.0.0.0/0"
+  source_type = "CIDR_BLOCK"
+
+  tcp_options {
+    destination_port_range {
+      min = 853
+      max = 853
+    }
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "nsg_to_instances_adguard_dot" {
+  network_security_group_id = oci_core_network_security_group.lb_to_instances_http.id
+  direction                 = "INGRESS"
+  protocol                  = 6
+
+  description = "Allow AdGuard DoT NodePort"
+
+  source      = oci_core_network_security_group.public_lb_nsg.id
+  source_type = "NETWORK_SECURITY_GROUP"
+
+  tcp_options {
+    destination_port_range {
+      min = var.adguard_dot_nodeport
+      max = var.adguard_dot_nodeport
+    }
+  }
+}
