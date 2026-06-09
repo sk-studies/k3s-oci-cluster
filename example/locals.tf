@@ -1,6 +1,5 @@
-
 data "http" "my_ip" {
-  url = "https://api.ipify.org"
+  url = "https://checkip.amazonaws.com"
 }
 
 locals {

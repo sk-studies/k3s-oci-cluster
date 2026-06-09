@@ -85,5 +85,5 @@ data "oci_core_instance" "k3s_servers_instances_ips" {
 }
 
 data "http" "my_ip" {
-  url = "https://api.ipify.org"
+  url = "https://checkip.amazonaws.com"
 }
