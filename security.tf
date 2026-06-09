@@ -29,6 +29,28 @@ resource "oci_core_default_security_list" "default_security_list" {
   }
 
   ingress_security_rules {
+    protocol = "17" # UDP
+
+    source = "0.0.0.0/0"
+
+    udp_options {
+      min = 53
+      max = 53
+    }
+  }
+
+  ingress_security_rules {
+    protocol = "6" # TCP
+
+    source = "0.0.0.0/0"
+
+    tcp_options {
+      min = 53
+      max = 53
+    }
+  }
+
+  ingress_security_rules {
     protocol = "all"
     source   = var.oci_core_vcn_cidr
 

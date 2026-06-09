@@ -149,3 +149,79 @@ resource "oci_core_network_security_group_security_rule" "nsg_to_instances_kubea
     }
   }
 }
+
+resource "oci_core_network_security_group_security_rule" "allow_dns_tcp_from_all" {
+  network_security_group_id = oci_core_network_security_group.public_lb_nsg.id
+  direction                 = "INGRESS"
+  protocol                  = 6 # TCP
+
+  description = "Allow DNS TCP from all"
+
+  source      = "0.0.0.0/0"
+  source_type = "CIDR_BLOCK"
+  stateless   = false
+
+  tcp_options {
+    destination_port_range {
+      min = 53
+      max = 53
+    }
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "allow_dns_udp_from_all" {
+  network_security_group_id = oci_core_network_security_group.public_lb_nsg.id
+  direction                 = "INGRESS"
+  protocol                  = 17 # UDP
+
+  description = "Allow DNS UDP from all"
+
+  source      = "0.0.0.0/0"
+  source_type = "CIDR_BLOCK"
+  stateless   = false
+
+  udp_options {
+    destination_port_range {
+      min = 53
+      max = 53
+    }
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "nsg_to_instances_adguard_tcp" {
+  network_security_group_id = oci_core_network_security_group.lb_to_instances_http.id
+  direction                 = "INGRESS"
+  protocol                  = 6 # TCP
+
+  description = "Allow AdGuard TCP NodePort"
+
+  source      = oci_core_network_security_group.public_lb_nsg.id
+  source_type = "NETWORK_SECURITY_GROUP"
+  stateless   = false
+
+  tcp_options {
+    destination_port_range {
+      min = var.adguard_tcp_nodeport
+      max = var.adguard_tcp_nodeport
+    }
+  }
+}
+
+resource "oci_core_network_security_group_security_rule" "nsg_to_instances_adguard_udp" {
+  network_security_group_id = oci_core_network_security_group.lb_to_instances_http.id
+  direction                 = "INGRESS"
+  protocol                  = 17 # UDP
+
+  description = "Allow AdGuard UDP NodePort"
+
+  source      = oci_core_network_security_group.public_lb_nsg.id
+  source_type = "NETWORK_SECURITY_GROUP"
+  stateless   = false
+
+  udp_options {
+    destination_port_range {
+      min = var.adguard_udp_nodeport
+      max = var.adguard_udp_nodeport
+    }
+  }
+}

@@ -237,3 +237,11 @@ variable "expose_kubeapi" {
   type    = bool
   default = false
 }
+
+variable "adguard_tcp_nodeport" {
+  default = 30054
+}
+
+variable "adguard_udp_nodeport" {
+  default = 30055
+}

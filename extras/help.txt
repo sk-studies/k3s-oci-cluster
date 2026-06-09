@@ -1,0 +1,41 @@
+kubectl apply -f argocd.yaml to initiate the root git ops.
+
+kubectl create secret docker-registry ghcr-secret \
+  --docker-server=ghcr.io \
+  --docker-username=swapnilkuwar \
+  --docker-password=ghp_*** \
+  -n default
+
+kubectl create secret docker-registry github-token \
+  --docker-server=ghcr.io \
+  --docker-username=swapnilkuwar \
+  --docker-password=ghp_*** \
+  -n default
+
+kubectl delete secret ghcr-secret -n default
+kubectl delete secret github-token -n default
+
+
+upto this execute.
+-----
+
+# to patch the ghcr-secret to serviceaccount.
+
+kubectl patch serviceaccount default \
+  -p '{"imagePullSecrets": [{"name": "ghcr-secret"}]}'
+
+# to fix the cert auto update
+
+kubectl patch deployment cert-manager -n cert-manager \
+  --type='json' \
+  -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--feature-gates=ExperimentalCertificateRequestApprovers=true"}]'
+
+kubectl rollout restart deployment -n cert-manager
+
+
+
+  kubectl create secret docker-registry ghcr-secret \
+  --docker-server=ghcr.io \
+  --docker-username=swapnilkuwar \
+  --docker-password=ghp_**** \
+  -n  payments-service-prod

@@ -1,0 +1,79 @@
+---
+# =============== GITHUB REPO SECRET ==================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sk-studies-repo
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  url: https://github.com/sk-studies/argocd-app
+  username: swapnilkuwar
+  password: ghp_****
+  type: git
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server-ingress
+  namespace: argocd
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - ci.swapnil.click
+      secretName: argocd-ci-tls
+  rules:
+    - host: ci.swapnil.click
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argocd-server
+                port:
+                  number: 80
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-gitops
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sk-studies/argocd-app
+    targetRevision: main
+    path: argocd # 👈 Folder containing applicationset.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      enabled: true
+      allowEmpty: true
+    syncOptions:
+      - CreateNamespace=true
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-single
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+parameters:
+  numberOfReplicas: "1"
+  staleReplicaTimeout: "30"
+  fsType: "ext4"

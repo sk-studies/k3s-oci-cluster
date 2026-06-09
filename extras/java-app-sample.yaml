@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: java-apps
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: javaapp1
+  namespace: java-apps
+  labels:
+    app: javaapp1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: javaapp1
+  template:
+    metadata:
+      labels:
+        app: javaapp1
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret # OPTIONAL if you later use per-namespace secret
+      containers:
+        - name: javaapp1
+          image: ghcr.io/sk-studies/javaapp1:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: javaapp1
+  namespace: java-apps
+spec:
+  type: ClusterIP
+  selector:
+    app: javaapp1
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: javaapp1
+  namespace: java-apps
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - secretName: javaapp1-tls
+      hosts:
+        - javaapp.swapnil.click
+  rules:
+    - host: javaapp.swapnil.click
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: javaapp1
+                port:
+                  number: 80
