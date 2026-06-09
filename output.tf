@@ -15,3 +15,7 @@ output "k3s_workers_ips" {
 output "public_lb_ip" {
   value = oci_network_load_balancer_network_load_balancer.k3s_public_lb.ip_addresses
 }
+
+output "my_public_ip" {
+  value = data.http.my_ip
+}

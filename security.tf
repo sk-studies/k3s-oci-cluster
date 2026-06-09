@@ -10,17 +10,17 @@ resource "oci_core_default_security_list" "default_security_list" {
 
   ingress_security_rules {
     protocol = 1 # icmp
-    source   = var.my_public_ip_cidr
+    source   = local.my_public_ip_cidr
 
-    description = "Allow icmp from  ${var.my_public_ip_cidr}"
+    description = "Allow icmp from  ${local.my_public_ip_cidr}"
 
   }
 
   ingress_security_rules {
     protocol = 6 # tcp
-    source   = var.my_public_ip_cidr
+    source   = local.my_public_ip_cidr
 
-    description = "Allow SSH from ${var.my_public_ip_cidr}"
+    description = "Allow SSH from ${local.my_public_ip_cidr}"
 
     tcp_options {
       min = 22

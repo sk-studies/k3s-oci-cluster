@@ -1,5 +1,8 @@
 terraform {
   required_providers {
+    http = {
+      source = "hashicorp/http"
+    }
     oci = {
       source  = "oracle/oci"
       version = ">= 4.64.0"

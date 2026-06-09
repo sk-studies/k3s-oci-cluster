@@ -35,7 +35,7 @@ module "k3s_cluster" {
   availability_domain       = var.availability_domain
   tenancy_ocid              = var.tenancy_ocid
   compartment_ocid          = var.compartment_ocid
-  my_public_ip_cidr         = var.my_public_ip_cidr
+  my_public_ip_cidr         = local.my_public_ip_cidr
   cluster_name              = var.cluster_name
   environment               = var.environment
   os_image_id               = var.os_image_id
@@ -58,4 +58,8 @@ output "k3s_workers_ips" {
 
 output "public_lb_ip" {
   value = module.k3s_cluster.public_lb_ip
+}
+
+output "my_public_ip" {
+  value = local.my_public_ip_cidr
 }
